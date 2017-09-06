@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Open Sample_Sheet_Test.xlsx, using Pandas preferably
 
@@ -22,3 +23,65 @@ Open Sample_Sheet_Test.xlsx, using Pandas preferably
 10. Be able to run the script by typing in the terminal “python sample_sheet_test.py” , zip the Sample_Sheet_Test.xlsx and python script into a folder (Or can do a private Github repo and grant access to @schwallie)
 
 """
+
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import xlrd
+import sys
+
+file_name = 'Sample_Sheet_Test.xlsx'
+
+class Sample:
+	
+	section_names = ['[Header]','[Reads]','[Settings]','[Data]'] #just a little descriptive data we will use later to parse datasets to each section
+	
+	def parse_sample(self,file):
+		return pd.read_excel(file, sheetname=0, header=None,index_col = None, na_values=['NA'])
+	
+	def __init__(self,file_name):
+		xlsx = self.parse_sample(file_name) #Here we parse the entire xlsx 
+		
+		def generate_dataset(section_name): #write a method to find the starting positions of each section of data section_names = ['[Header]','[Reads]','[Settings]','[Data]']
+			row_id = int(xlsx.loc[xlsx[0] == section_name].index[0])
+			other_sections = [name for name in self.section_names if name != section_name]
+			print(other_sections)
+			def find_next_row_id():
+				try:
+					return max([xlsx.loc[xlsx[0] == idx].index[0] for idx in other_sections if xlsx.loc[xlsx[0] == idx].index[0] > row_id])
+				except:
+					return None
+			next_row_id = find_next_row_id()
+			print (next_row_id)
+			if section_name == '[Header]':
+				raw_data = pd.DataFrame()
+				pass
+			elif section_name == '[Reads]':
+				pass
+			elif section_name == '[Settings]':
+				pass
+			elif section_name == '[Data]':
+				raw_data = xlsx[row_id+2:next_row_id].values
+				headers = xlsx[row_id+1:row_id+2].values[0]
+				return pd.DataFrame(raw_data,columns=headers) #Here is where we create the dataframe for the test data
+			else:
+				print('You entered a header incorrrectly!')
+		
+		
+		
+		self.data = generate_dataset('[Data]')
+		#self.data = generate_dataset('[Reads]')
+		#self.data = generate_dataset('[Settings]')
+		#self.data = generate_dataset('[Data]')
+		
+test_sample = Sample(file_name)
+
+#print (test_sample.data)
+#print (test_sample.data.head())
+
+
+
+print(test_sample.data)
+
+
