@@ -31,6 +31,8 @@ import matplotlib.pyplot as plt
 import xlrd
 import sys
 import datetime
+import re
+
 
 file_name = 'Sample_Sheet_Test.xlsx'
 
@@ -72,23 +74,28 @@ class Sample:
 				headers = xlsx[row_id+1:row_id+2].values[0]
 				return pd.DataFrame(raw_data,columns=headers) #Here is where we create the dataframe for the test data
 			else:
-				print('You entered a header incorrrectly!')
-		
-		
+				pass
 		
 		self.header = generate_dataset('[Header]')
 		self.reads = generate_dataset('[Reads]')
 		self.settings = generate_dataset('[Settings]')
-		self.data = generate_dataset('[Data]')
+		self.df = generate_dataset('[Data]')
 		
 		self.experiment_name = self.header['Experiment Name'].values[0]
 		self.experiment_date = self.header['Date'].values[0]
+		
+		re = r'\A\d{2}[\w]+\d_[\d][G|T]'
+		
+		re = r'\d\d[a-z][a-z][a-z][\d][\d]_[\d]G|T'
+		
+		self.calibration_df = self.df[self.df.Sample_ID.str.contains('RES') == False]
+		self.non_conforming = self.df[self.df.Sample_ID.str.contains('RES') == True]
+		self.non_conforming = self.non_conforming[self.non_conforming.Sample_ID.str.contains(re)==False]
+		self.data = self.df[self.df.Sample_ID.str.contains(re)]
 	
 	def validate_dates(self):
 		if datetime.datetime.strptime(self.experiment_name[:8],'%Y%m%d') == self.experiment_date:
-			print('Experiment date matches experiment name')
-			print(datetime.datetime.strptime(self.experiment_name[:8],'%Y%m%d'))
-			print(self.experiment_date)
+			print('Experiment Date: '+str(self.experiment_date)+' matches Experiment Name: '+ self.experiment_name)
 			return True
 		else:
 			print('! Experiment date does not match experiment name')
@@ -102,8 +109,10 @@ print (test_sample.settings)
 print (test_sample.data)
 """
 
-print(test_sample.experiment_name)
-
-test_sample.validate_dates()
+#print('Experiment Name: ' + test_sample.experiment_name)
+#test_sample.validate_dates()
+#print(test_sample.calibration_df)
+#print(test_sample.non_conforming)
+print(test_sample.data)
 
 
