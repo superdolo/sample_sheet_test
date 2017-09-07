@@ -30,6 +30,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import xlrd
 import sys
+import datetime
 
 file_name = 'Sample_Sheet_Test.xlsx'
 
@@ -46,21 +47,26 @@ class Sample:
 		def generate_dataset(section_name): #write a method to find the starting positions of each section of data section_names = ['[Header]','[Reads]','[Settings]','[Data]']
 			row_id = int(xlsx.loc[xlsx[0] == section_name].index[0])
 			other_sections = [name for name in self.section_names if name != section_name]
-			print(other_sections)
-			def find_next_row_id():
+			#print(other_sections)
+			def find_next_row_id(): #allows dataframes to adjust to data in different order by parsing dataframe to next section header instead of fixed by row# / df.index
 				try:
-					return max([xlsx.loc[xlsx[0] == idx].index[0] for idx in other_sections if xlsx.loc[xlsx[0] == idx].index[0] > row_id])
+					return min([xlsx.loc[xlsx[0] == idx].index[0] for idx in other_sections if xlsx.loc[xlsx[0] == idx].index[0] > row_id])
 				except:
 					return None
 			next_row_id = find_next_row_id()
-			print (next_row_id)
+			#print (next_row_id)
 			if section_name == '[Header]':
-				raw_data = pd.DataFrame()
-				pass
+				raw_data = xlsx[row_id+1:next_row_id].values.T
+				headers = raw_data[0].tolist()
+				return pd.DataFrame(raw_data[1:2],columns=headers)
 			elif section_name == '[Reads]':
-				pass
+				raw_data = xlsx[row_id+1:next_row_id].values.T
+				headers = xlsx[row_id+1:row_id+2].values[0]
+				return xlsx[row_id+1:next_row_id][0]
 			elif section_name == '[Settings]':
-				pass
+				raw_data = xlsx[row_id+1:next_row_id].values.T
+				headers = raw_data[0].tolist()
+				return pd.DataFrame(raw_data[1:2],columns=headers)
 			elif section_name == '[Data]':
 				raw_data = xlsx[row_id+2:next_row_id].values
 				headers = xlsx[row_id+1:row_id+2].values[0]
@@ -70,18 +76,34 @@ class Sample:
 		
 		
 		
+		self.header = generate_dataset('[Header]')
+		self.reads = generate_dataset('[Reads]')
+		self.settings = generate_dataset('[Settings]')
 		self.data = generate_dataset('[Data]')
-		#self.data = generate_dataset('[Reads]')
-		#self.data = generate_dataset('[Settings]')
-		#self.data = generate_dataset('[Data]')
 		
+		self.experiment_name = self.header['Experiment Name'].values[0]
+		self.experiment_date = self.header['Date'].values[0]
+	
+	def validate_dates(self):
+		if datetime.datetime.strptime(self.experiment_name[:8],'%Y%m%d') == self.experiment_date:
+			print('Experiment date matches experiment name')
+			print(datetime.datetime.strptime(self.experiment_name[:8],'%Y%m%d'))
+			print(self.experiment_date)
+			return True
+		else:
+			print('! Experiment date does not match experiment name')
+			
 test_sample = Sample(file_name)
 
-#print (test_sample.data)
-#print (test_sample.data.head())
+"""
+print (test_sample.header)
+print (test_sample.reads)
+print (test_sample.settings)
+print (test_sample.data)
+"""
 
+print(test_sample.experiment_name)
 
-
-print(test_sample.data)
+test_sample.validate_dates()
 
 
