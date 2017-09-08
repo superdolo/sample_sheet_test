@@ -23,7 +23,7 @@ x8. Everything before the first “_” character in Sample_ID is the ID. Build 
 
 x9. Print out the calibration_df, non_conforming, data, and the dictionary from Step 8
 
-10. Be able to run the script by typing in the terminal “python sample_sheet_test.py” , zip the Sample_Sheet_Test.xlsx and python script into a folder (Or can do a private Github repo and grant access to @schwallie)
+x10. Be able to run the script by typing in the terminal “python sample_sheet_test.py” , zip the Sample_Sheet_Test.xlsx and python script into a folder (Or can do a private Github repo and grant access to @schwallie)
 
 """
 
